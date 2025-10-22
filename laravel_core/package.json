@@ -1,0 +1,19 @@
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "postbuild": "node ./scripts/fix-manifest.js"
+  },
+  "devDependencies": {
+    "axios": "^1.7.4",
+    "laravel-vite-plugin": "^1.0.3",
+    "vite": "^7.1.10"
+  },
+  "dependencies": {
+    "alpinejs": "^3.13.3",
+    "lodash": "^4.17.21",
+    "postcss": "^8.4.47"
+  }
+}

@@ -24,7 +24,7 @@ Write-Host "Backup created at: $backupFile"
 if (Test-Path "$corePath\package.json") {
     Write-Host "Running npm build..."
     Set-Location $corePath
-    npm install
+    npm install --legacy-peer-deps
     npm run build
     Set-Location $projectRoot
 } else {

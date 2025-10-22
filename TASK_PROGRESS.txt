@@ -1,0 +1,9 @@
+# TASK Progress Tracker
+✅ Done:
+1. Laravel 12 core installed
+2. Laravel Breeze installed
+⚙️ In Progress:
+3. Filament 4.2 setup
+🔜 Next:
+4. Sanctum Integration
+5. Spatie Permission

@@ -1,6 +1,6 @@
 # =============================================================
-# Laravel12 - Auto Build + Push + Verification Script
-# Version : v2.6 (Integrated Environment Check)
+# Laravel12 - Fast Build + Push Automation
+# Version : v2.6-fast
 # Author  : Epul & ChatGPT
 # =============================================================
 
@@ -28,7 +28,7 @@ function Write-Log($text) {
     Write-Host $text
 }
 
-Write-Host "=== Laravel12 Push Automation v2.6 ===`n"
+Write-Host "=== Laravel12 Fast Push Automation ===`n"
 Write-Log  "Start push sequence ($versionTag)"
 
 # =============================================================
@@ -66,17 +66,43 @@ catch {
 }
 
 # =============================================================
-# STEP 2: CREATE BACKUP ZIP
+# STEP 2: FAST BACKUP ZIP CREATION
 # =============================================================
 Set-Location $projectRoot
-Write-Log "Creating backup ZIP..."
+Write-Log "Creating fast ZIP backup (excluding heavy folders)..."
+
 try {
+    Add-Type -AssemblyName 'System.IO.Compression.FileSystem'
     if (Test-Path $zipFile) { Remove-Item $zipFile -Force }
-    Compress-Archive -Path * -DestinationPath $zipFile -Force
-    Write-Log "Backup created at: $zipFile"
+
+    # Define folders to exclude for speed
+    $exclude = @(
+        "node_modules",
+        "laravel_core\vendor",
+        "laravel_core\storage\logs",
+        "backups"
+    )
+
+    # Gather only needed files
+    $files = Get-ChildItem -Path $projectRoot -Recurse -File | Where-Object {
+        foreach ($ex in $exclude) {
+            if ($_.FullName -like "*\$ex*") { return $false }
+        }
+        return $true
+    }
+
+    # Build the archive manually
+    $zip = [System.IO.Compression.ZipFile]::Open($zipFile, "Create")
+    foreach ($file in $files) {
+        $relative = $file.FullName.Substring($projectRoot.Length + 1)
+        [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($zip, $file.FullName, $relative, "Optimal") | Out-Null
+    }
+    $zip.Dispose()
+
+    Write-Log "Fast backup created successfully at: $zipFile"
 }
 catch {
-    Write-Log "ERROR creating backup ZIP: $($_.Exception.Message)"
+    Write-Log "ERROR creating fast ZIP: $($_.Exception.Message)"
     exit 1
 }
 
@@ -101,7 +127,7 @@ if (Test-Path $gitignoreFile) {
 Write-Log "Running Git commit and push..."
 try {
     git add .
-    git commit -m "Auto backup + build + assets $versionTag" | Out-Null
+    git commit -m "Auto fast backup + build + assets $versionTag" | Out-Null
     git tag -a $versionTag -m "Version $versionTag"
     git push origin main
     git push origin $versionTag
@@ -121,4 +147,4 @@ Write-Host "Process completed successfully."
 Write-Host "Backup ZIP stored at: $zipFile"
 Write-Host "Details logged to:   $logFile"
 Write-Host ""
-Write-Host "=== Laravel12 push v2.6 finished ==="
+Write-Host "=== Laravel12 fast push finished ==="
